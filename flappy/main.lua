@@ -10,6 +10,9 @@ WINDOW_HEIGHT = 1080
 VIRTUAL_HEIGHT = 288
 VIRTUAL_WIDTH = 512
 
+BACKGROUND_SCROLL = 30
+GROUND_SCROLL =60
+
 
 
 
@@ -32,6 +35,7 @@ end
 function love.update(dt)
     background:update(dt)
     bird:update(dt)
+    pipes:collide(bird)
     pipes:update(dt)
 end
 
