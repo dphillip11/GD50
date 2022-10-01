@@ -1,58 +1,36 @@
---[[
-    Bird Class
-    Author: Colton Ogden
-    cogden@cs50.harvard.edu
-
-    The Bird is what we control in the game via clicking or the space bar; whenever we press either,
-    the bird will flap and go up a little bit, where it will then be affected by gravity. If the bird hits
-    the ground or a pipe, the game is over.
-]]
-
 Bird = Class{}
 
-local GRAVITY = 20
-
-function Bird:init()
-    self.image = love.graphics.newImage('bird.png')
-    self.x = VIRTUAL_WIDTH / 2 - 8
-    self.y = VIRTUAL_HEIGHT / 2 - 8
-
-    self.width = self.image:getWidth()
-    self.height = self.image:getHeight()
-
+function Bird:init(image)
+    self.y = WINDOW_HEIGHT/2
+    self.x = WINDOW_WIDTH/2
+    self.height = image:getHeight() 
+    self.width = image:getWidth()
+    self.dy=0
+    self.dy2=1500
+    
+    -- these variables are for keeping track of our velocity on both the
+    -- X and Y axis, since the ball can move in two dimensions
     self.dy = 0
 end
 
---[[
-    AABB collision that expects a pipe, which will have an X and Y and reference
-    global pipe width and height values.
-]]
-function Bird:collides(pipe)
-    -- the 2's are left and top offsets
-    -- the 4's are right and bottom offsets
-    -- both offsets are used to shrink the bounding box to give the player
-    -- a little bit of leeway with the collision
-    if (self.x + 2) + (self.width - 4) >= pipe.x and self.x + 2 <= pipe.x + PIPE_WIDTH then
-        if (self.y + 2) + (self.height - 4) >= pipe.y and self.y + 2 <= pipe.y + PIPE_HEIGHT then
-            return true
-        end
-    end
-
-    return false
+function Bird:reset()
+    self.x = VIRTUAL_WIDTH / 2 - 2
+    self.y = VIRTUAL_HEIGHT / 2 - 2
+    self.dx = 0
+    self.dy = 0
 end
 
 function Bird:update(dt)
-    self.dy = self.dy + GRAVITY * dt
-
-    -- burst of anti-gravity when space or left mouse are pressed
-    if love.keyboard.wasPressed('space') or love.mouse.wasPressed(1) then
-        self.dy = -5
-        sounds['jump']:play()
+    self.dy = math.min(self.dy - self.dy2 * dt, 1000)
+    self.y = math.max(0,math.min(self.y - self.dy * dt, WINDOW_HEIGHT -50))
+    if self.y > WINDOW_HEIGHT -60 then
+        self.dy=0
     end
-
-    self.y = self.y + self.dy
+    if self.y < 10 then
+            self.dy=0
+    end
 end
 
 function Bird:render()
-    love.graphics.draw(self.image, self.x, self.y)
+    love.graphics.draw(birdI, WINDOW_WIDTH/2 - self.width/2, self.y, 0, 2, 2)
 end
