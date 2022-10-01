@@ -1,12 +1,13 @@
 Bird = Class{}
 
 function Bird:init(image)
-    self.y = WINDOW_HEIGHT/2
-    self.x = WINDOW_WIDTH/2
-    self.height = image:getHeight() 
-    self.width = image:getWidth()
-    self.dy=0
-    self.dy2=1500
+    self.image = love.graphics.newImage(image)
+    self.y = VIRTUAL_HEIGHT/2
+    self.x = VIRTUAL_WIDTH/2
+    self.height = self.image:getHeight() 
+    self.width = self.image:getWidth()
+    self.dy = 0
+    self.dy2 = 15
     
     -- these variables are for keeping track of our velocity on both the
     -- X and Y axis, since the ball can move in two dimensions
@@ -14,23 +15,27 @@ function Bird:init(image)
 end
 
 function Bird:reset()
-    self.x = VIRTUAL_WIDTH / 2 - 2
-    self.y = VIRTUAL_HEIGHT / 2 - 2
+    self.x = VIRTUAL_WIDTH / 2 - 0.5*self.width
+    self.y = VIRTUAL_HEIGHT / 2 - 0.5*self.height
     self.dx = 0
     self.dy = 0
 end
 
 function Bird:update(dt)
-    self.dy = math.min(self.dy - self.dy2 * dt, 1000)
-    self.y = math.max(0,math.min(self.y - self.dy * dt, WINDOW_HEIGHT -50))
-    if self.y > WINDOW_HEIGHT -60 then
+    self.dy = self.dy + self.dy2 * dt
+    if self.y < 1 and self.dy<0 then
         self.dy=0
     end
-    if self.y < 10 then
-            self.dy=0
+    if self.y > VIRTUAL_HEIGHT - self.height -8 and self.dy > 0 then
+        self.dy=0
     end
+    self.y = self.y + self.dy
+end
+
+function Bird:space()
+    bird.dy=bird.dy - 6 
 end
 
 function Bird:render()
-    love.graphics.draw(birdI, WINDOW_WIDTH/2 - self.width/2, self.y, 0, 2, 2)
+    love.graphics.draw(self.image, self.x, self.y)
 end
