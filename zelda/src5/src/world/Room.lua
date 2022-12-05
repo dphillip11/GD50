@@ -160,20 +160,22 @@ function Room:update(dt)
         if entity.health <= 0 then
             entity.dead = true
             if not entity.hasDied then
-                local heart = GameObject(
-                    GAME_OBJECT_DEFS['heart'],entity.x, entity.y)
-                    heart.onCollide = function()
-                        if heart.state == 'uncollected' then
-                            self.player.health = math.min(self.player.health + 2, 6)
-                            heart.state = 'collected'
-                            for k, object in pairs(self.objects) do
-                                if object.state == 'collected' then
-                                    table.remove(self.objects,k)
-                                end
-                            end                        
-                        end                     
-                    end
-                table.insert(self.objects, heart)
+                if math.random(10) == 1 then
+                    local heart = GameObject(
+                        GAME_OBJECT_DEFS['heart'],entity.x, entity.y)
+                        heart.onCollide = function()
+                            if heart.state == 'uncollected' then
+                                self.player.health = math.min(self.player.health + 2, 6)
+                                heart.state = 'collected'
+                                for k, object in pairs(self.objects) do
+                                    if object.state == 'collected' then
+                                        table.remove(self.objects,k)
+                                    end
+                                end                        
+                            end                     
+                        end
+                    table.insert(self.objects, heart)
+                end
                 entity.hasDied = true
             end
         elseif not entity.dead then
