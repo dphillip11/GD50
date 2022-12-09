@@ -30,18 +30,38 @@ GAME_OBJECT_DEFS = {
         frame = 5,
         width = 16,
         height = 16,
-        solid = true,
-        defaultState = 'uncollected',
+        solid = false,
+        defaultState = 'active',
         states = {
-            ['uncollected'] = {
+            ['active'] = {
                 frame = 5
             },
-            ['collected'] = {
+            ['inactive'] = {
                 frame = 4
             }
         }
     },
     ['pot'] = {
-        -- TODO
+        type = 'pot',
+        texture = 'tiles',
+        frame = 14,
+        width = 16,
+        height = 16,
+        solid = true,
+        defaultState = 'active',
+        states = {
+            ['active'] = {
+                frame = 14
+            },
+            ['lifted'] = {
+                frame = 14
+            },
+            ['broken'] = {
+                frame = 52
+            },
+            ['inactive'] = {
+                frame = 13
+            }
+        }
     }
 }

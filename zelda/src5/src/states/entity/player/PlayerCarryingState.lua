@@ -6,9 +6,9 @@
     cogden@cs50.harvard.edu
 ]]
 
-PlayerWalkState = Class{__includes = EntityWalkState}
+PlayerCarryingState = Class{__includes = EntityWalkState}
 
-function PlayerWalkState:init(player, dungeon)
+function PlayerCarryingState:init(player, dungeon)
     self.entity = player
     self.dungeon = dungeon
     self.room = self.entity.room
@@ -17,30 +17,39 @@ function PlayerWalkState:init(player, dungeon)
     self.entity.offsetX = 0
 end
 
-function PlayerWalkState:update(dt)
+function PlayerCarryingState:enter()
+    -- self.pot = self.entity.pot       
+end
+
+function PlayerCarryingState:update(dt)
+    if self.entity.pot == nil then
+        self.entity:changeState('walk')
+    else
+    self.entity.pot.x = self.entity.x
+    self.entity.pot.y = self.entity.y - (self.entity.pot.height/2)
+    end
+
     self.room = self.entity.room
     if love.keyboard.isDown('left') then
         self.entity.direction = 'left'
-        self.entity:changeAnimation('walk-left')
+        self.entity:changeAnimation('pot-walk-left')
     elseif love.keyboard.isDown('right') then
         self.entity.direction = 'right'
-        self.entity:changeAnimation('walk-right')
+        self.entity:changeAnimation('pot-walk-right')
     elseif love.keyboard.isDown('up') then
         self.entity.direction = 'up'
-        self.entity:changeAnimation('walk-up')
+        self.entity:changeAnimation('pot-walk-up')
     elseif love.keyboard.isDown('down') then
         self.entity.direction = 'down'
-        self.entity:changeAnimation('walk-down')
+        self.entity:changeAnimation('pot-walk-down')
     else
-        self.entity:changeState('idle')
+        self.entity:changeState('pot-idle')
     end
+
 
     if love.keyboard.wasPressed('space') then
-        self.entity:changeState('swing-sword')
-    end
-
-    if love.keyboard.wasPressed('return') then
-        self.entity:changeState('picking-up')
+        self.entity.pot = nil
+        self.entity:changeState('walk')
     end
 
     -- perform base collision detection against walls

@@ -31,10 +31,16 @@ function GameObject:init(def, x, y)
 
     -- default empty collision callback
     self.onCollide = function() end
+    self.disappearTimer = 0;
 end
 
 function GameObject:update(dt)
-
+    if self.state == 'broken' then
+        self.disappearTimer = self.disappearTimer + dt
+    end
+    if self.disappearTimer > 0.5 then
+        self.state = 'inactive'
+    end
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)

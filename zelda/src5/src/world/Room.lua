@@ -32,6 +32,7 @@ function Room:init(player)
 
     -- reference to player for collisions, etc.
     self.player = player
+    self.player.room = self
 
     -- used for centering the dungeon rendering
     self.renderOffsetX = MAP_RENDER_OFFSET_X
@@ -104,6 +105,19 @@ function Room:generateObjects()
 
     -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
+
+    for i = 1,math.random(3,6) do
+        local pot = GameObject(GAME_OBJECT_DEFS['pot'], math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+            math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE, VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16))
+        pot.onCollide = function()
+            if pot.state == 'active' then
+                pot.state = 'broken'
+                gSounds['door']:play()
+                self.player.pot = nil
+            end
+        end
+        table.insert(self.objects,pot)
+    end
 end
 
 --[[
@@ -150,12 +164,12 @@ function Room:update(dt)
     
     -- don't update anything if we are sliding to another room (we have offsets)
     if self.adjacentOffsetX ~= 0 or self.adjacentOffsetY ~= 0 then return end
-
+    self.player.room = self
     self.player:update(dt)
 
     for i = #self.entities, 1, -1 do
         local entity = self.entities[i]
-
+        
         -- remove entity from the table if health is <= 0
         if entity.health <= 0 then
             entity.dead = true
@@ -164,11 +178,11 @@ function Room:update(dt)
                     local heart = GameObject(
                         GAME_OBJECT_DEFS['heart'],entity.x, entity.y)
                         heart.onCollide = function()
-                            if heart.state == 'uncollected' then
+                            if heart.state == 'active' then
                                 self.player.health = math.min(self.player.health + 2, 6)
-                                heart.state = 'collected'
+                                heart.state = 'inactive'
                                 for k, object in pairs(self.objects) do
-                                    if object.state == 'collected' then
+                                    if object.state == 'inactive' then
                                         table.remove(self.objects,k)
                                     end
                                 end                        
@@ -202,7 +216,14 @@ function Room:update(dt)
         if self.player:collides(object) then
             object:onCollide()
         end
-        
+        if object.type == 'pot' then
+            for l, entity in pairs(self.entities) do
+                if entity:collides(object) then
+                    object:onCollide()
+                    entity.health = math.max(0, entity.health - 1)
+                end
+            end
+        end        
     end
 end
 
@@ -254,6 +275,10 @@ function Room:render()
     
     if self.player then
         self.player:render()
+    end
+
+    if self.player.pot then
+        self.player.pot:render(self.adjacentOffsetX, self.adjacentOffsetY)
     end
 
     love.graphics.setStencilTest()

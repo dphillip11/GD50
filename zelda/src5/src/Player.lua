@@ -17,10 +17,10 @@ function Player:update(dt)
 end
 
 function Player:collides(target)
-    local selfY, selfHeight = self.y + self.height / 2, self.height - self.height / 2
+     local selfY, selfHeight = self.y + math.floor(self.height / 2), self.height - math.floor(self.height / 2)
     
-    return not (self.x + self.width < target.x or self.x > target.x + target.width or
-                selfY + selfHeight < target.y or selfY > target.y + target.height)
+     return not (self.x + self.width < target.x or self.x > target.x + target.width or
+                 selfY + selfHeight < target.y or selfY > target.y + target.height)
 end
 
 function Player:render()
@@ -29,4 +29,42 @@ function Player:render()
     -- love.graphics.setColor(255, 0, 255, 255)
     -- love.graphics.rectangle('line', self.x, self.y, self.width, self.height)
     -- love.graphics.setColor(255, 255, 255, 255)
+end
+
+function Player:tryLiftPot(obj)
+    if obj.type ~= 'pot' then
+        return false
+    end
+    if self.direction == 'up' then
+        if obj.x > self.x - 3 and obj.x < self.x + 3 and obj.y > self.y - obj.height - 3 and obj.y < self.y + self.height - 10 then
+            self.pot = obj
+            return true
+        else
+            return false
+        end
+    end
+    if self.direction == 'down' then
+        if obj.x > self.x - 3 and obj.x < self.x + 3 and obj.y < self.y + self.height + 3 and obj.y > self.y + self.height - 3 then
+            self.pot = obj
+            return true
+        else
+            return false
+        end
+    end
+    if self.direction == 'left' then
+        if obj.x > self.x - obj.width - 3 and obj.x < self.x + 3 and obj.y > self.y and obj.y < self.y + self.height - obj.height + 3 then
+            self.pot = obj
+            return true
+        else
+            return false
+        end
+    end
+    if self.direction == 'right' then
+        if obj.x > self.x + 3 and obj.x < self.x + obj.width + 3 and obj.y > self.y and obj.y < self.y + self.height - obj.height + 3 then
+            self.pot = obj
+            return true
+        else
+            return false
+        end
+    end
 end

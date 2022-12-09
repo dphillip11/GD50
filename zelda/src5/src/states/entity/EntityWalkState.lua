@@ -26,7 +26,7 @@ function EntityWalkState:update(dt)
     
     -- assume we didn't hit a wall
     self.bumped = false
-
+    
     -- boundary checking on all sides, allowing us to avoid collision detection on tiles
     if self.entity.direction == 'left' then
         self.entity.x = self.entity.x - self.entity.walkSpeed * dt
@@ -60,13 +60,15 @@ function EntityWalkState:update(dt)
             self.bumped = true
         end
     end
+    -- check object collisions and correct movement, then choose new direction
+    self:checkObjectCollisions()
 end
 
 function EntityWalkState:processAI(params, dt)
-    local room = params.room
+    self.room = params.room
     local directions = {'left', 'right', 'up', 'down'}
 
-    if self.moveDuration == 0 or self.bumped then
+    if self.moveDuration == 0 or self.bumped  then
         
         -- set an initial move duration and direction
         self.moveDuration = math.random(5)
@@ -86,6 +88,33 @@ function EntityWalkState:processAI(params, dt)
     end
 
     self.movementTimer = self.movementTimer + dt
+end
+
+function EntityWalkState:checkObjectCollisions()
+    if self.room then
+        for k, object in pairs (self.room.objects) do
+            if object.solid and self.entity:collides(object) then
+                if self.entity.direction == 'right' then
+                    self.entity.x = object.x - self.entity.width - 1
+                elseif self.entity.direction == 'left' then
+                    self.entity.x = object.x + object.width + 1
+                elseif self.entity.type ~= 'player' then
+                    if self.entity.direction == 'up' then
+                        self.entity.y = object.y + object.height + 1
+                    elseif self.entity.direction == 'down' then
+                        self.entity.y = object.y - self.entity.height - 1
+                    end
+                else
+                    if self.entity.direction == 'up' then
+                        self.entity.y = (object.y + object.height + 1) -  math.floor(self.entity.height / 2)
+                    elseif self.entity.direction == 'down' then
+                        self.entity.y= object.y - 1 - self.entity.height
+                    end
+                end
+                self.bumped = true
+            end
+        end
+    end
 end
 
 function EntityWalkState:render()

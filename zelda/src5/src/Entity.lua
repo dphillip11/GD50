@@ -24,7 +24,6 @@ function Entity:init(def)
     -- drawing offsets for padded sprites
     self.offsetX = def.offsetX or 0
     self.offsetY = def.offsetY or 0
-
     self.walkSpeed = def.walkSpeed
 
     self.health = def.health
@@ -39,6 +38,7 @@ function Entity:init(def)
 
     self.dead = false
     self.hasDied = false
+    self.type = def.type
 end
 
 function Entity:createAnimations(animations)
